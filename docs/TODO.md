@@ -157,7 +157,23 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
     missing textures for `diamond_coin*`, `emerald_coin*`, `diamond_nugget`, `emerald_nugget` (the textures are
     at `item/`, the models point at `item/nuggets/`), `area_depth_augment`, `dual_filter_augment`,
     `upgrade_augment_4`; `upgrade_augment_4` also fails to bake (blocks and items atlas mixed). Missing
-    block model `thermal:block/chunk_loader` and `minecraft:item/template_spawn_egg`.
+    block model `thermal:block/chunk_loader`.
+  - ~~**A machine turned the colour of its fluid**~~ (Fluid Encapsulator after filling a bucket) fixed in
+    `ModelUtils.retexture`. 26.1 picks a quad's chunk layer from its sprite, so the fluid underlay (a
+    translucent sprite) went to the translucent layer, drew after the machine's cutout faces at the same
+    depth and covered them. Retextured quads now keep the source quad's layer, as every block did on 1.20
+    (cells, ducts and side-config overlays use the same helper). **Re-check fluid in machines, cells and
+    Fluiducts.**
+  - ~~**The guidebook failed to build**~~ (empty book): 36 credits entries used
+    `player_head{SkullOwner:'…'}`; now `player_head[profile='…']`. The `Unknown item 'thermal:invar_ingot'`
+    icon warnings are items from Foundation/Cultivation/Locomotion/Innovation, on entries gated by those
+    mods: upstream behaviour, harmless.
+  - ~~`insolator_rubberwood_sapling` failed to parse~~ (Cultivation's sapling isn't registered): now gated
+    on `neoforge:registered`.
+  - **Spawn eggs have no texture**: `basalz`/`blizz`/`blitz_spawn_egg` parent `item/template_spawn_egg`,
+    which 1.21.5 removed (every vanilla egg has its own texture now; NeoForge ships no template), and
+    `SpawnEggItemCoFH`'s two colours are no longer used. Needs art: three egg textures. Open, Joel's call.
+  - ThermalExpansion's dev runs can load ThermalDynamics with `-PwithDynamics` (opt-in, dev only).
 
 - **B.5 behaviour changes the new API forced (2026-09-22)**, each to confirm in play:
   - **CoFH cake and feast blocks no longer apply food effects**, because `FoodProperties` lost them

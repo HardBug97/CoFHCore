@@ -34,7 +34,9 @@ public class ModelUtils {
     // region QUADS
     public static BakedQuad retexture(BakedQuad quad, TextureAtlasSprite sprite) {
 
-        return new MutableQuad().setFrom(quad).setSpriteAndMoveUv(new Material.Baked(sprite, false)).toBakedQuad();
+        // Keep the source quad's layer, so underlays still draw beneath the faces over them.
+        BakedQuad.MaterialInfo info = quad.materialInfo();
+        return new MutableQuad().setFrom(quad).setSpriteAndMoveUv(sprite, info.layer(), info.itemRenderType()).toBakedQuad();
     }
 
     public static List<BakedQuad> getAllQuads(BlockStateModelPart model) {

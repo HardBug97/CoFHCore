@@ -8,10 +8,11 @@ MAX_WAIT="${3:-300}"
 [ -n "$LOG_FILE" ] || { echo "usage: $0 REPO_DIR LOG_FILE [MAX_WAIT]"; exit 1; }
 case "$LOG_FILE" in /*) ;; *) LOG_FILE="$PWD/$LOG_FILE" ;; esac
 
-# Game JVMs (ModDevGradle's devlaunch.Main, NeoGradle's forgeserveruserdev) whose working directory is this repo's run/, so other repos' servers are left alone.
+# Server JVMs (ModDevGradle's server run, NeoGradle's forgeserveruserdev) whose working directory is this repo's run/,
+# so a client or another repo's server is left alone.
 repo_game_pids() {
 
-    for pid in $(pgrep -f "devlaunch.Main|forgeserveruserdev"); do
+    for pid in $(pgrep -f "devlaunch.Main.*serverRunProgramArgs|forgeserveruserdev"); do
         cwd=$(lsof -a -p "$pid" -d cwd -Fn 2>/dev/null | sed -n 's/^n//p')
         [ "$cwd" = "$REPO_DIR/run" ] && echo "$pid"
     done
