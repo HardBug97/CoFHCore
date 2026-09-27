@@ -13,6 +13,8 @@ import static cofh.core.init.CoreRecipeSerializers.SECURE_RECIPE_SERIALIZER;
 
 public class SecureRecipe extends CustomRecipe {
 
+    public static final SecureRecipe INSTANCE = new SecureRecipe();
+
     public SecureRecipe() {
 
     }

@@ -148,6 +148,17 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
 
 ## Inbox
 
+- **Client pass findings (2026-09-26)**, from Joel's first `runClient` in ThermalExpansion:
+  - ~~Joining a world disconnected with `Failed to encode packet 'clientbound/minecraft:custom_payload'`~~
+    fixed: `SecureRecipe`'s map codec made a new instance per recipe while its stream codec was
+    `StreamCodec.unit` of a different one, so `neoforge:recipe_content` couldn't encode it. Both now share
+    `SecureRecipe.INSTANCE` (vanilla's `RepairItemRecipe` pattern). A headless boot never encodes that payload.
+  - Model warnings, all **upstream gaps, not regressions** (the textures don't exist on `1.20.4` either):
+    missing textures for `diamond_coin*`, `emerald_coin*`, `diamond_nugget`, `emerald_nugget` (the textures are
+    at `item/`, the models point at `item/nuggets/`), `area_depth_augment`, `dual_filter_augment`,
+    `upgrade_augment_4`; `upgrade_augment_4` also fails to bake (blocks and items atlas mixed). Missing
+    block model `thermal:block/chunk_loader` and `minecraft:item/template_spawn_egg`.
+
 - **B.5 behaviour changes the new API forced (2026-09-22)**, each to confirm in play:
   - **CoFH cake and feast blocks no longer apply food effects**, because `FoodProperties` lost them
     in favour of the `Consumable` component. Nothing in the four repos builds one; restoring it

@@ -29,6 +29,6 @@ public class CoreRecipeSerializers {
     public static final DeferredHolder<MapCodec<? extends ICondition>, MapCodec<TagExistsCondition>> TAG_EXISTS_CONDITION = CONDITION_CODECS.register("tag_exists", () -> TagExistsCondition.CODEC);
 
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ShapedPotionNBTRecipe>> SHAPED_POTION_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(ID_CRAFTING_POTION, () -> new RecipeSerializer<>(ShapedPotionNBTRecipe.CODEC, ShapedPotionNBTRecipe.STREAM_CODEC));
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SecureRecipe>> SECURE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(ID_CRAFTING_SECURABLE, () -> new RecipeSerializer<>(MapCodec.unit(SecureRecipe::new), StreamCodec.unit(new SecureRecipe())));
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SecureRecipe>> SECURE_RECIPE_SERIALIZER = RECIPE_SERIALIZERS.register(ID_CRAFTING_SECURABLE, () -> new RecipeSerializer<>(MapCodec.unit(SecureRecipe.INSTANCE), StreamCodec.unit(SecureRecipe.INSTANCE)));
 
 }
