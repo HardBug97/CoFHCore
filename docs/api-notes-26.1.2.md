@@ -1058,3 +1058,28 @@ Only what ThermalCore's section did not already cover.
   `IEnergyStorage, EnergyHandler`) over the new handler and exposes the legacy view through `IFluidHandler.of` /
   `IEnergyStorage.of`; grid storages carry a `SnapshotJournal`.
 - `ClientPacketDistributor.sendToServer` for client → server packets.
+
+## Client pass (2026-09-26 to 09-28)
+
+What a headless boot can't see, found in Joel's first `runClient`:
+
+- **`StreamCodec.unit(x)` only encodes `x` itself** (it checks equality). A recipe whose `MapCodec.unit` builds a
+  new instance per JSON entry fails the `neoforge:recipe_content` sync and disconnects the client. Share one
+  `INSTANCE` for both codecs (vanilla's `RepairItemRecipe`).
+- **A quad's chunk layer comes from its sprite.** `MutableQuad#setSpriteAndMoveUv(Material.Baked)` picks the
+  layer from the new sprite's transparency, so an underlay retextured to a fluid lands in the translucent layer
+  and draws over the faces above it. `ModelUtils.retexture` keeps the source quad's layer
+  (`setSpriteAndMoveUv(sprite, info.layer(), info.itemRenderType())`).
+- **Item tints come only from `items/*.json`** (`"tints": [...]`, one entry per tint index). CoFH's
+  `cofh_core:colorable` source (`index` = colour index for `IColorableItem#getColor`) is the bridge.
+- **`neoforge:fluid_container` needs `Capabilities.Fluid.ITEM`** (`FluidUtil.getFirstStackContained`,
+  `FluidContentsTint`); its model class has a private constructor. CoFH items don't register the capability, so
+  they use `cofh_core:fluid_container` (`base`, `fluid_mask`), which reads the fluid from the item.
+- **`item/template_spawn_egg` is gone** (1.21.5: every egg has its own texture). CoFH ships
+  `cofh_core:item/template_spawn_egg` (greyscale base + spots) for `SpawnEggItemCoFH`, tinted by `cofh_core:colorable`.
+- **Item strings use components**: Patchouli's `player_head{SkullOwner:'X'}` is `player_head[profile='X']`
+  (`ResolvableProfile.CODEC` takes a bare name). One unparsable icon empties the whole book.
+- Recipes for items another mod may not register: `"neoforge:conditions": [{"type": "neoforge:registered",
+  "value": "<item id>"}]` (registry defaults to items).
+- A dev client can't open a window from Claude's shell (`glfwGetPrimaryMonitor failed`), so item models and
+  anything drawn are only verifiable in Joel's own runs.
