@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "cofh_core:item/spawn_egg",
+    "layer1": "cofh_core:item/spawn_egg_overlay"
+  }
+}

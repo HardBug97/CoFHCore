@@ -170,9 +170,13 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
     mods: upstream behaviour, harmless.
   - ~~`insolator_rubberwood_sapling` failed to parse~~ (Cultivation's sapling isn't registered): now gated
     on `neoforge:registered`.
-  - **Spawn eggs have no texture**: `basalz`/`blizz`/`blitz_spawn_egg` parent `item/template_spawn_egg`,
-    which 1.21.5 removed (every vanilla egg has its own texture now; NeoForge ships no template), and
-    `SpawnEggItemCoFH`'s two colours are no longer used. Needs art: three egg textures. Open, Joel's call.
+  - ~~**Spawn eggs have no texture**~~ (parent `item/template_spawn_egg`, removed in 1.21.5): CoFHCore now
+    ships its own greyscale `cofh_core:item/template_spawn_egg` (base + spots), and each Thermal egg's item
+    definition tints the two layers with `cofh_core:colorable` index 0/1, so `SpawnEggItemCoFH`'s colours
+    apply again (Joel, 2026-09-28: one tintable template over per-mob art). **Unverified in a client.**
+  - **No item definition uses `cofh_core:colorable`** except the eggs above. On 26.1 item tints come only
+    from `items/*.json`, so every other `IColorableItem` (satchels, `FluidContainerItem`s, anything
+    `addColorable` collects) renders untinted. Needs a sweep of their item definitions.
   - ThermalExpansion's dev runs can load ThermalDynamics with `-PwithDynamics` (opt-in, dev only).
 
 - **B.5 behaviour changes the new API forced (2026-09-22)**, each to confirm in play:
