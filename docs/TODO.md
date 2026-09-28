@@ -174,9 +174,16 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
     ships its own greyscale `cofh_core:item/template_spawn_egg` (base + spots), and each Thermal egg's item
     definition tints the two layers with `cofh_core:colorable` index 0/1, so `SpawnEggItemCoFH`'s colours
     apply again (Joel, 2026-09-28: one tintable template over per-mob art). **Unverified in a client.**
-  - **No item definition uses `cofh_core:colorable`** except the eggs above. On 26.1 item tints come only
-    from `items/*.json`, so every other `IColorableItem` (satchels, `FluidContainerItem`s, anything
-    `addColorable` collects) renders untinted. Needs a sweep of their item definitions.
+  - ~~**Dyed satchels rendered undyed**~~: on 26.1 item tints come only from `items/*.json`. Only two items
+    were ever colorable (1.20.4 registered colours for exactly these): the satchel now tints `satchel_color`'s
+    layer 0 with `cofh_core:colorable`.
+  - **A filled Florb renders empty** (open, Joel's call). B.7 replaced CoFH's `fluid_container` loader with
+    NeoForge's `neoforge:fluid_container`, which finds the fluid only through `Capabilities.Fluid.ITEM`
+    (`FluidUtil.getFirstStackContained`, and `FluidContentsTint` for the colour). No CoFH item registers that
+    capability, and upstream never did (the `initCapabilities` wrappers are commented out on 1.20.4). Either
+    register the item capability for `IFluidContainerItem`s (new interop: pipes, tanks and other mods can
+    fill/drain florbs, reservoirs and cells as items) or bring back a CoFH item model that reads the fluid
+    through `FluidHelper.getFluidContainedInItem`, as 1.20.4's loader did.
   - ThermalExpansion's dev runs can load ThermalDynamics with `-PwithDynamics` (opt-in, dev only).
 
 - **B.5 behaviour changes the new API forced (2026-09-22)**, each to confirm in play:
