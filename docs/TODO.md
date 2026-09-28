@@ -177,13 +177,12 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
   - ~~**Dyed satchels rendered undyed**~~: on 26.1 item tints come only from `items/*.json`. Only two items
     were ever colorable (1.20.4 registered colours for exactly these): the satchel now tints `satchel_color`'s
     layer 0 with `cofh_core:colorable`.
-  - **A filled Florb renders empty** (open, Joel's call). B.7 replaced CoFH's `fluid_container` loader with
-    NeoForge's `neoforge:fluid_container`, which finds the fluid only through `Capabilities.Fluid.ITEM`
-    (`FluidUtil.getFirstStackContained`, and `FluidContentsTint` for the colour). No CoFH item registers that
-    capability, and upstream never did (the `initCapabilities` wrappers are commented out on 1.20.4). Either
-    register the item capability for `IFluidContainerItem`s (new interop: pipes, tanks and other mods can
-    fill/drain florbs, reservoirs and cells as items) or bring back a CoFH item model that reads the fluid
-    through `FluidHelper.getFluidContainedInItem`, as 1.20.4's loader did.
+  - ~~**A filled Florb rendered empty**~~: B.7 had swapped CoFH's `fluid_container` loader for
+    `neoforge:fluid_container`, which finds the fluid only through `Capabilities.Fluid.ITEM`, and no CoFH item
+    registers that (upstream never did). Joel chose (2026-09-28) to keep upstream's no-capability behaviour:
+    `cofh_core:fluid_container` (`FluidContainerItemModel`) is back as a 26.1 item model, reading the fluid through
+    `FluidHelper.getFluidContainedInItem` and tinting it with `ColorableItemTint` index 1. **Unverified in a
+    client**: a headless run can't load item models, and a client can't open a window from Claude's shell.
   - ThermalExpansion's dev runs can load ThermalDynamics with `-PwithDynamics` (opt-in, dev only).
 
 - **B.5 behaviour changes the new API forced (2026-09-22)**, each to confirm in play:

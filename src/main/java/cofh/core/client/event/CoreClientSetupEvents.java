@@ -4,6 +4,7 @@ import cofh.core.client.PostEffect;
 import cofh.core.client.particle.CoFHParticle;
 import cofh.core.client.particle.CoFHParticleGroup;
 import cofh.core.client.particle.impl.*;
+import cofh.core.client.renderer.model.FluidContainerItemModel;
 import cofh.core.common.fluid.ExperienceFluid;
 import cofh.core.common.fluid.HoneyFluid;
 import cofh.core.common.fluid.PotionFluid;
@@ -30,6 +31,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterFluidModelsEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleGroupsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
@@ -85,6 +87,12 @@ public class CoreClientSetupEvents {
     public static void colorSetupItem(final RegisterColorHandlersEvent.ItemTintSources event) {
 
         event.register(Identifier.fromNamespaceAndPath(ID_COFH_CORE, "colorable"), ColorableItemTint.MAP_CODEC);
+    }
+
+    @SubscribeEvent
+    public static void registerItemModels(final RegisterItemModelsEvent event) {
+
+        event.register(Identifier.fromNamespaceAndPath(ID_COFH_CORE, "fluid_container"), FluidContainerItemModel.Unbaked.MAP_CODEC);
     }
 
     @SubscribeEvent
