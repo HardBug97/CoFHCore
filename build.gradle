@@ -19,6 +19,17 @@ java {
 
 sourceSets.main.resources.srcDirs += "src/main/generated"
 
+sourceSets {
+    gametest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    gametestImplementation.extendsFrom implementation
+}
+
 tasks.withType(JavaCompile).configureEach {
     options.compilerArgs << "-Xmaxerrs" << "100000"
     options.encoding = 'UTF-8'
@@ -36,6 +47,7 @@ println "Using NeoForge: ${neo_version}, for Minecraft: ${mc_version}"
 
 neoForge {
     version = project.neo_version
+    addModdingDependenciesTo sourceSets.gametest
 
     validateAccessTransformers = true
 
@@ -51,6 +63,7 @@ neoForge {
         }
         gameTestServer {
             type = 'gameTestServer'
+            sourceSet = sourceSets.gametest
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
         data {
@@ -68,6 +81,7 @@ neoForge {
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
+            sourceSet sourceSets.gametest
         }
     }
 }
