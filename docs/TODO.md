@@ -158,6 +158,18 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
     at `item/`, the models point at `item/nuggets/`), `area_depth_augment`, `dual_filter_augment`,
     `upgrade_augment_4`; `upgrade_augment_4` also fails to bake (blocks and items atlas mixed). Missing
     block model `thermal:block/chunk_loader`.
+  - ~~**Placed machines rendered solid black**~~ (2026-10-02), caused by the fix below: keeping the source layer
+    for *every* retextured quad put side-config overlays into the solid layer, where their transparent pixels draw
+    black. Now only underlays are forced to solid (`ModelUtils.retextureUnderlay`); overlays keep their sprite's
+    layer. **Re-check machines, cells and side config.**
+  - ~~**A thrown Florb placed nothing**~~: `ThrownFlorb` called the legacy `FluidUtil.tryPlaceFluid(…, ItemStack, …)`,
+    which needs the item fluid capability (upstream's call had the same dependency). It now places the fluid with
+    `transfer.fluid.FluidUtil.tryPlaceFluid(FluidResource, …)`. **Re-check, and add a GameTest.**
+  - ~~**Satchels couldn't be dyed**~~: 26.1 dyes through a `minecraft:crafting_dye` recipe per item; ThermalCore now
+    generates `thermal:tools/satchel_dyed`. Craft a satchel with any dye.
+  - Many crafting recipes log `can't be placed due to empty ingredients` (machine frame, most machines, augments):
+    they need tin/lead/etc. ingots, which come from Thermal Foundation, not ThermalCore. Upstream behaviour, not a
+    port bug; in a dev world without Foundation, use creative.
   - ~~**A machine turned the colour of its fluid**~~ (Fluid Encapsulator after filling a bucket) fixed in
     `ModelUtils.retexture`. 26.1 picks a quad's chunk layer from its sprite, so the fluid underlay (a
     translucent sprite) went to the translucent layer, drew after the machine's cutout faces at the same

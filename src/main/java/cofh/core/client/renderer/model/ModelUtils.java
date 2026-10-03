@@ -2,6 +2,7 @@ package cofh.core.client.renderer.model;
 
 import cofh.core.util.helpers.FluidHelper;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModelPart;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.SimpleModelWrapper;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
@@ -34,9 +35,13 @@ public class ModelUtils {
     // region QUADS
     public static BakedQuad retexture(BakedQuad quad, TextureAtlasSprite sprite) {
 
-        // Keep the source quad's layer, so underlays still draw beneath the faces over them.
-        BakedQuad.MaterialInfo info = quad.materialInfo();
-        return new MutableQuad().setFrom(quad).setSpriteAndMoveUv(sprite, info.layer(), info.itemRenderType()).toBakedQuad();
+        return new MutableQuad().setFrom(quad).setSpriteAndMoveUv(new Material.Baked(sprite, false)).toBakedQuad();
+    }
+
+    public static BakedQuad retextureUnderlay(BakedQuad quad, TextureAtlasSprite sprite) {
+
+        // Solid draws before cutout and translucent, so the faces over an underlay stay on top.
+        return new MutableQuad().setFrom(quad).setSpriteAndMoveUv(sprite, ChunkSectionLayer.SOLID, quad.materialInfo().itemRenderType()).toBakedQuad();
     }
 
     public static List<BakedQuad> getAllQuads(BlockStateModelPart model) {

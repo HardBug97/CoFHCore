@@ -1067,9 +1067,18 @@ What a headless boot can't see, found in Joel's first `runClient`:
   new instance per JSON entry fails the `neoforge:recipe_content` sync and disconnects the client. Share one
   `INSTANCE` for both codecs (vanilla's `RepairItemRecipe`).
 - **A quad's chunk layer comes from its sprite.** `MutableQuad#setSpriteAndMoveUv(Material.Baked)` picks the
-  layer from the new sprite's transparency, so an underlay retextured to a fluid lands in the translucent layer
-  and draws over the faces above it. `ModelUtils.retexture` keeps the source quad's layer
-  (`setSpriteAndMoveUv(sprite, info.layer(), info.itemRenderType())`).
+  layer from the new sprite's transparency, and layers draw solid, then cutout, then translucent. So an
+  *underlay* retextured to a fluid lands in the translucent layer and covers the face meant to sit over it, while
+  an *overlay* (side config, level indicators) must keep its sprite's layer: forced into solid, its transparent
+  pixels draw black. `ModelUtils.retexture` stays sprite-derived; `ModelUtils.retextureUnderlay` forces
+  `ChunkSectionLayer.SOLID`, used only where quads go through `addUnderlayQuad`.
+- **Placing fluid from a thrown or held container without an item capability**:
+  `transfer.fluid.FluidUtil.tryPlaceFluid(FluidResource, Player, Level, BlockPos, false)` places a bucket of the
+  resource (`false` mirrors `BucketItem#emptyContents`). The legacy `fluids.FluidUtil.tryPlaceFluid(…, ItemStack, …)`
+  goes through `Capabilities.Fluid.ITEM` and fails silently for CoFH items.
+- **Dyeing is a recipe per item**: `minecraft:crafting_dye` (`DyeRecipe`, `target`/`dye`/`result`), built like
+  vanilla `RecipeProvider#dyedItem` with `CustomCraftingRecipeBuilder.customCrafting`. There's no dyeable tag
+  or `DyeableLeatherItem` any more.
 - **Item tints come only from `items/*.json`** (`"tints": [...]`, one entry per tint index). CoFH's
   `cofh_core:colorable` source (`index` = colour index for `IColorableItem#getColor`) is the bridge.
 - **`neoforge:fluid_container` needs `Capabilities.Fluid.ITEM`** (`FluidUtil.getFirstStackContained`,
