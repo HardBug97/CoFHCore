@@ -132,6 +132,9 @@ now; the Thermal repos' `1.21.1` branches need CoFHCore on `1.21.1` to build.
   "B.10 ThermalCore" and "B.10 ThermalExpansion and ThermalDynamics". To boot any repo:
   `scripts/verify_runserver.sh <repo> <log> 300` (from a Thermal repo, `../CoFHCore/scripts/...`). It clears
   a stale server and `session.lock` for that repo itself, and exits non-zero unless the server reaches `Done`.
+  **To verify everything**: `scripts/verify_all.sh [log-dir]` runs all four repos in dependency order (compile,
+  `runData` must not change committed output, headless boot, GameTests) and stops at the first failure. GameTests
+  live in each repo's `src/gametest` (never in the jar); shapes are in api-notes "GameTests".
 
 **Phase A's one owed item is the client pass** (port plan §A.4), which is Joel's to run. The
 `runData` pass already found and fixed one client crash (`LevelRendererMixin`), and

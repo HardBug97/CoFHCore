@@ -60,6 +60,11 @@ confirmed shapes and [progress-log.md](progress-log.md) for the chronology.
   if they extend `BlockEntityCoFH` (check TD's `DuctBlockEntity`); their entities convert natively;
   TD drops `INBTSerializable` from its grid classes and moves `GridContainer` to `SavedDataType`.
   Friend lists and grid data won't carry over from 1.21.1 worlds (the saved-data file paths moved).
+- **GameTests (2026-10-02)** cover what B.4 owed at runtime, and run in `scripts/verify_all.sh`: CoFH storages
+  (transactions, managed handler rules, callbacks on root commit, two handlers over one slot); Energy and Fluid
+  Cell side config with capability invalidation; a Furnace powered and fed through capabilities; an aborted pull of
+  a running machine's input; a Fluxduct line; a thrown Florb; every recipe round-tripping to a NeoForge client.
+  They found the empty-slot stack limit bug. Still uncovered: Fluiducts, dynamos, item capabilities.
 - **B.10 inherits from B.4**: capability registration moves to `Capabilities.Item/Fluid/Energy.BLOCK`,
   and `AugmentableBlockEntity`'s cached `itemCap`/`fluidCap`/`energyCap` fields narrow to the CoFH
   handler types. Also call `invalidateCapabilities()` after side-config changes and wrench

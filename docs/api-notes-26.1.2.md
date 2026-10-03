@@ -1092,3 +1092,25 @@ What a headless boot can't see, found in Joel's first `runClient`:
   "value": "<item id>"}]` (registry defaults to items).
 - A dev client can't open a window from Claude's shell (`glfwGetPrimaryMonitor failed`), so item models and
   anything drawn are only verifiable in Joel's own runs.
+
+## GameTests (2026-10-02)
+
+- **Registration is two registries.** A test *function* is a `Consumer<GameTestHelper>` in the static
+  `Registries.TEST_FUNCTION` (register it in `RegisterEvent`); a test *instance* lives in the datapack registry
+  `Registries.TEST_INSTANCE`, added in NeoForge's `RegisterGameTestsEvent` (fired only when GameTests are enabled):
+  `event.registerEnvironment(id)` returns the environment holder, then
+  `event.registerTest(id, new FunctionGameTestInstance(ResourceKey.create(Registries.TEST_FUNCTION, id), new TestData<>(environment, structureId, maxTicks, setupTicks, required)))`.
+- **Every test needs a structure template** from a data pack (`data/<ns>/structure/<name>.nbt`, gzipped NBT:
+  `DataVersion` 4790, `size`, empty `palette`/`blocks`/`entities`). Each repo ships an empty 8×4×8 one.
+- `neoforge.enabledGameTestNamespaces` is no longer read; every registered test runs. `runGameTestServer` exits with
+  the number of failed required tests, so a failure fails the Gradle build.
+- Tests live in a `gametest` source set (never in the jar): `addModdingDependenciesTo sourceSets.gametest`, the
+  `gameTestServer` run's `sourceSet = sourceSets.gametest`, and `sourceSet sourceSets.gametest` in the mod's group.
+  Other runs still boot when that output doesn't exist.
+- `assertValueEqual(actual, expected, name)` prints **"Expected name to be *actual*: was *expected*"** (the
+  translation's argument order), so read failures backwards.
+- To test what a client receives, encode with `new RegistryFriendlyByteBuf(buf, access, ConnectionType.NEOFORGE)`.
+  The two-argument constructor means a vanilla connection, where NeoForge flattens custom ingredients to item lists:
+  a compound of empty tags then fails to decode, which never happens to a NeoForge client.
+- **`ItemStack.EMPTY.getMaxStackSize()` is 1** (no components), where 1.20.4's was 64. Anything that asks an empty
+  slot's stack for its limit needs `Item.DEFAULT_MAX_STACK_SIZE` instead.
