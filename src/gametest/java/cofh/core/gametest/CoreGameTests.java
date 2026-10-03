@@ -30,6 +30,7 @@ public class CoreGameTests {
         TESTS.put("managed_item_handler_rules", StorageTests::managedItemHandlerRules);
         TESTS.put("shared_slot_journal", StorageTests::sharedSlotJournal);
         TESTS.put("fluid_handler_transactions", StorageTests::fluidHandlerTransactions);
+        TESTS.put("recipes_sync", RecipeTests::recipesSync);
     }
 
     @SubscribeEvent
