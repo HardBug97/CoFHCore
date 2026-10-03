@@ -5,6 +5,7 @@ import cofh.lib.api.IResourceStorage;
 import cofh.lib.api.inventory.IItemStackHolder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
@@ -277,7 +278,11 @@ public class ItemStorageCoFH implements IItemHandler, IItemStackHolder, IResourc
     @Override
     public int getSlotLimit(int slot) {
 
-        return capacity <= 0 ? item.getMaxStackSize() : capacity;
+        if (capacity > 0) {
+            return capacity;
+        }
+        // An empty stack reports a max size of 1.
+        return item.isEmpty() ? Item.DEFAULT_MAX_STACK_SIZE : item.getMaxStackSize();
     }
 
     @Override
