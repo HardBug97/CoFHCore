@@ -10,6 +10,7 @@ import cofh.lib.util.raytracer.VoxelShapeBlockHitResult;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -229,13 +230,20 @@ public class CoreClientEvents {
                 RenderSystem.setShader(GameRenderer::getParticleShader);
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 Queue<CoFHParticle> particles = delayedRenderParticles.get(renderType);
+                if (particles.isEmpty()) {
+                    continue;
+                }
 
                 BufferBuilder particleBuffer = renderType.begin(tesselator, manager);
                 while (!particles.isEmpty()) {
                     particles.poll().render(stack, buffer, particleBuffer, partialTick);
                 }
                 if (particleBuffer != null) {
-                    BufferUploader.drawWithShader(particleBuffer.buildOrThrow());
+                    // build() is null when nothing was queued for this type this frame; buildOrThrow() would throw.
+                    MeshData mesh = particleBuffer.build();
+                    if (mesh != null) {
+                        BufferUploader.drawWithShader(mesh);
+                    }
                 }
             }
             stack.popPose();

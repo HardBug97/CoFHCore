@@ -24,6 +24,20 @@ say which.
 
 ## Inbox
 
+- **Static client pass done 2026-10-05 on branch `1.21.1-client`, uncompiled** (the session had
+  no access to the NeoForge maven). See the progress log's entry of that date. First thing to do
+  there: `./gradlew build` in all four repos, `runServer`, then the §A.4 client checklist, with
+  extra attention to: chilled-effect mouse slowdown (`MouseHandlerMixin` rewrite), worn
+  beekeeper/diving/hazmat armour, satchel and fluid-container item tints, and machine GUI
+  background darkness.
+- **`bottler_water_bottle` (TE) gives a potion with `custom_data {Potion: water}`** instead of
+  `potion_contents`, because `RecipeJsonUtils#parseItemStack` maps the old `nbt` key onto
+  `CUSTOM_DATA`. Loads fine, wrong item. Needs `components` support in `parseItemStack`.
+- **Is the `RenderLevelStageEvent` pose stack the same space as on 1.20.4?** TC's wrench area
+  overlay, CoFH's delayed particles and TD's debug renderer all translate the event's pose
+  stack by `-camera`; on 1.21 the camera rotation lives in the model-view matrix. Check in game
+  that the overlays line up with the world.
+
 - ~~`RecipeManager#byType`~~ resolved: ThermalCore's 26 call sites use the public
   `getAllRecipesFor(type)`, which returns a `List<RecipeHolder<T>>` rather than a Map.
 - MDG artifact names for 1.21.1 are `build/moddev/artifacts/neoforge-21.1.251{,-sources,-merged}.jar`

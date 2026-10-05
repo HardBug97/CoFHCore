@@ -66,7 +66,7 @@ public class ContainerScreenCoFH<T extends AbstractContainerMenu> extends Abstra
         updatePanels();
         updateElements();
 
-        renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        // Screen#render already calls renderBackground (and with it renderBg) since 1.20.2.
         super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         renderTooltip(pGuiGraphics, pMouseX, pMouseY);
 

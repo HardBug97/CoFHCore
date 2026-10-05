@@ -273,3 +273,44 @@ One pre-existing content gap surfaced rather than regressed: ThermalExpansion's
 its Inbox) — on 1.20.4 the old parser produced an empty recipe silently; 1.21's codec path logs
 the error.
 
+
+## 2026-10-05 — Static client pass (branch `1.21.1-client`, all four repos)
+
+Done in a cloud session whose network policy blocks `maven.neoforged.net` and Mojang's hosts,
+so **nothing here was compiled or run**: no `build`, no `runServer`, no `runClient`. Every change
+was made by reading the code against what 1.21.1 does at runtime, and is owed a build + client
+session. What changed and why:
+
+- **`MouseHandlerMixin`** (the suspect in TODO). It modified a `double` local by `ordinal = 3`.
+  1.20.5 gave `turnPlayer` a `double movementTime` parameter, which Mixin counts, so ordinal 3
+  moved from the cubed sensitivity to the `* 8.0` term (wrong value, and missed the spyglass
+  path). Rewritten as a MixinExtras `@ModifyExpressionValue` on the first `OptionInstance#get()`
+  in `turnPlayer` (the sensitivity read, unchanged in NeoForge's patch), returning a sensitivity
+  whose cube is scaled by the original factor. Independent of local ordering.
+- **Worn Thermal armour rendered nothing.** `ArmorMaterialCoFH.create` built materials with an
+  empty `layers` list, and 1.21's `HumanoidArmorLayer` draws one pass per layer. New overload
+  takes the texture name; ThermalCore's three suits pass `thermal:{beekeeper,diving,hazmat}`
+  (the `_layer_1/_layer_2` textures already exist).
+- **Tinted items rendered transparent.** Since 1.21 `ItemRenderer` takes alpha from the
+  `ItemColor` result (vanilla's spawn eggs return `ARGB32.opaque(...)` for this reason).
+  `IColorableItem` returns `0xRRGGBB`; the registration in `CoreClientSetupEvents` now ORs in
+  `0xFF000000`. Affects the satchel and fluid containers.
+- **Delayed particle pass could throw.** `CoreClientEvents` called `buildOrThrow()` for every
+  render type it had ever seen, including ones with an empty queue this frame; 1.21's
+  `buildOrThrow` throws on an empty builder. Empty queues are skipped and `build()` is
+  null-checked.
+- **`ContainerScreenCoFH#render` drew the background twice.** `Screen#render` has called
+  `renderBackground` (and through it `renderBg`) since 1.20.2; the explicit call doubled the dim
+  overlay and the GUI background/element pass.
+- Resources: `pack.mcmeta` is `34` + `supported_formats [34, 48]` in all four repos; CoFHCore's
+  `crafting_securable` special recipe moved from `recipes/` (never read on 1.21) to `recipe/`;
+  ThermalCore's guidebook recipe sets the `patchouli:book` component instead of the dead `nbt`
+  string; TE's rubberwood and oil sand recipes are behind `neoforge:item_exists` conditions.
+
+Checked and left alone: every `addVertex` chain against its format (all complete except the
+unused `VFXHelper#renderSkeleton` debug helper, and `OVERLAY_LINES`/TD's `laserLine`, which pair
+`POSITION_COLOR` with the lines shader exactly as 1.20.4 did); `GameRendererMixin`,
+`LevelRendererMixin`, `MultiPlayerGameModeMixin` targets; particle definitions vs. registered
+types; model loader ids; shader JSON. `FluidType`/`Item#initializeClient` still exist (deprecated)
+on 21.1 — they compile with `@Override` — so client extensions still register; they move to
+`RegisterClientExtensionsEvent` in Phase B.

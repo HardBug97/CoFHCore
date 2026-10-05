@@ -44,8 +44,11 @@ public class CoreClientSetupEvents {
     public static void colorSetupItem(final RegisterColorHandlersEvent.Item event) {
 
         ItemColors colors = event.getItemColors();
+        // Since 1.21 the item renderer reads alpha from the tint as well, so a plain 0xRRGGBB tint
+        // draws the quad fully transparent. IColorableItem returns RGB; force it opaque here.
         for (Item colorable : COLORABLE_ITEMS) {
-            colors.register(((IColorableItem) colorable)::getColor, colorable);
+            IColorableItem item = (IColorableItem) colorable;
+            colors.register((stack, tintIndex) -> 0xFF000000 | item.getColor(stack, tintIndex), colorable);
         }
     }
 
