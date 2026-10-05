@@ -114,9 +114,20 @@ public class FluidStorageCoFH implements IFluidHandler, IFluidStackHolder, IReso
     }
 
     // region NBT
+
+    /**
+     * Reads a fluid saved by {@link #write}, which merges the stack's fields into a tag that also holds
+     * capacity, tank index etc. An empty tank has no fluid id there, and {@link FluidStack#parseOptional}
+     * only skips a completely empty tag - anything else without an id is logged as an invalid fluid.
+     */
+    public static FluidStack readFluid(HolderLookup.Provider provider, CompoundTag nbt) {
+
+        return nbt.contains("id") ? FluidStack.parseOptional(provider, nbt) : FluidStack.EMPTY;
+    }
+
     public FluidStorageCoFH read(HolderLookup.Provider provider, CompoundTag nbt) {
 
-        FluidStack fluid = FluidStack.parseOptional(provider, nbt);
+        FluidStack fluid = readFluid(provider, nbt);
         setFluidStack(fluid);
         return this;
     }

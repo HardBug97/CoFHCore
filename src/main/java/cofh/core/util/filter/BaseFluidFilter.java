@@ -1,6 +1,7 @@
 package cofh.core.util.filter;
 
 import cofh.core.util.helpers.FluidHelper;
+import cofh.lib.common.fluid.FluidStorageCoFH;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -98,7 +99,7 @@ public class BaseFluidFilter implements IFilter, IFilterOptions {
             CompoundTag tankTag = list.getCompound(i);
             int tank = tankTag.getByte(TAG_TANK);
             if (tank >= 0 && tank < fluids.size()) {
-                fluids.set(tank, FluidStack.parseOptional(provider, tankTag));
+                fluids.set(tank, FluidStorageCoFH.readFluid(provider, tankTag));
             }
         }
         allowList = subTag.getBoolean(TAG_FILTER_OPT_LIST);

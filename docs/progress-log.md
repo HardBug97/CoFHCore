@@ -276,10 +276,13 @@ the error.
 
 ## 2026-10-05 — Static client pass (branch `1.21.1-client`, all four repos)
 
-Done in a cloud session whose network policy blocks `maven.neoforged.net` and Mojang's hosts,
-so **nothing here was compiled or run**: no `build`, no `runServer`, no `runClient`. Every change
-was made by reading the code against what 1.21.1 does at runtime, and is owed a build + client
-session. What changed and why:
+Started in a cloud session whose network policy blocked `maven.neoforged.net` and Mojang's hosts,
+so this first round was made by reading the code, uncompiled. The policy was opened later the
+same day; the next entry covers the build and the real client run, which confirmed every shape
+below against `neoforge-21.1.251-sources.jar` (`MouseHandler#turnPlayer(double)` with the
+sensitivity read first, `ItemRenderer` taking alpha from the tint, `AbstractContainerScreen`
+drawing `renderBg` from `renderBackground`, `RenderLevelStageEvent`'s `AFTER_PARTICLES` pose
+stack being a fresh one with the camera rotation in the model-view stack). What changed and why:
 
 - **`MouseHandlerMixin`** (the suspect in TODO). It modified a `double` local by `ordinal = 3`.
   1.20.5 gave `turnPlayer` a `double movementTime` parameter, which Mixin counts, so ordinal 3
@@ -314,3 +317,41 @@ unused `VFXHelper#renderSkeleton` debug helper, and `OVERLAY_LINES`/TD's `laserL
 types; model loader ids; shader JSON. `FluidType`/`Item#initializeClient` still exist (deprecated)
 on 21.1 — they compile with `@Override` — so client extensions still register; they move to
 `RegisterClientExtensionsEvent` in Phase B.
+
+## 2026-10-05 — Built, `runServer`, and a real `runClient` (Xvfb + Mesa)
+
+All four build. A dedicated dev server (TE's `runServer` with TD's jar in `run/mods`) reaches
+`Done` with no recipe, loot or registry errors; 2068 recipes load. The client is driven under
+`xvfb-run` with `LIBGL_ALWAYS_SOFTWARE=1`, input through XTest (python-xlib) and screenshots via
+ImageMagick `import`. Without a sound device, wait for `Error starting SoundSystem`, not
+`Sound engine started`. The NeoForge *installer* still could not run (it fetches
+`launchermeta.mojang.com`), so the server test is the MDG dev run, not a production install.
+
+What the client found, none of which a headless server could:
+
+- **Every client start crashed during mod loading**: `Cannot get config value before config is
+  loaded`. ThermalCore's "Festive Vanilla Mobs" used `festiveMobs` as its default, which by then
+  is the `ConfigValue` defined above it; 1.21.1 corrects the client config while loading it and
+  calls that supplier. Fixed to its own `TRUE` default.
+- **Empty fluid tanks logged "Tried to load invalid fluid"** whenever a fluid cell or empty tank
+  was read (JEI, creative tabs, item rendering). CoFH merges the fluid stack's fields into a tag
+  that also holds `Capacity`/`Tank`, and `FluidStack#parseOptional` only skips a *completely*
+  empty tag. New `FluidStorageCoFH.readFluid` checks for the `id` key first; used by
+  `FluidStorageCoFH#read`, `BaseFluidFilter`, TC's `FluidCellBlockItem`/`FluidCellBakedModel`
+  and TD's `FluidGridStorage`.
+- **The Patchouli guidebook loaded with empty contents**, three causes in turn:
+  1. contributor pages used `player_head{SkullOwner:'…'}`; Patchouli 1.21 parses `/give` syntax,
+     now `player_head[minecraft:profile={name:"…"}]`;
+  2. ore and metal-form pages without a flag referenced Thermal Foundation items this port does
+     not register (1.20's Patchouli ignored unknown items, 1.21's throws and drops the whole
+     book). Those pages now carry `mod:thermal_foundation` like the rest of the book's Foundation
+     pages; the mixed gear/coin list keeps a copy with only registered items for when Foundation
+     is absent. All six languages;
+  3. `IVariable.wrap(String)` builds a variable with no registry access, so the catalyst page's
+     item lookup failed (`Registry minecraft:item not found`); the processors pass
+     `level.registryAccess()` now.
+- TD's `build` produced only the sources jar (`jar` is disabled for `shadowJar`); `assemble`
+  depends on `shadowJar` now, giving `thermal_dynamics-…-universal.jar`.
+
+Plain ducts open no GUI with an empty hand — no duct block entity is a `MenuProvider`, same as
+1.20 — only attachments do, and the energy limiter's GUI and buttons work.
