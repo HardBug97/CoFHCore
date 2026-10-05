@@ -355,3 +355,19 @@ What the client found, none of which a headless server could:
 
 Plain ducts open no GUI with an empty hand — no duct block entity is a `MenuProvider`, same as
 1.20 — only attachments do, and the energy limiter's GUI and buttons work.
+
+## 2026-10-05 — First report from a real modpack (~300 mods, Sodium, macOS)
+
+- **Crash while meshing chunks with Sodium**: `ArrayIndexOutOfBoundsException` in
+  `Object2ObjectOpenHashMap.rehash` from TC's `UnderlayBakedModel` (a Water Generator). The
+  baked models' static quad caches were plain maps written from several chunk-meshing threads.
+  All of TC's model caches and TD's `DuctBakedModel` caches are synchronized maps now. Same code
+  as 1.20; Sodium just makes the race easy to hit.
+- **TD fluid grids clobbered their own UUID.** `GridContainer` writes the grid UUID as `id`
+  and merges the grid NBT into the same tag; on 1.21 `FluidStack` also writes `id`. A grid
+  holding fluid would have failed `getUUID("id")` on the next load. The grid's fluid lives under
+  `Fluid` now (old flat layout still read when `id` is a string). Not reproduced in game with
+  fluid inside a duct yet; the empty-grid symptom ("Tried to load invalid fluid") is gone.
+- The rest of that log is other mods' Thermal compat (Create and Crafts & Additions recipes for
+  Thermal Foundation items this port does not register, Sophisticated Backpacks throwing from
+  burn-time queries) — harmless, logged by them, not ours to fix.
